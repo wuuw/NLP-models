@@ -7,7 +7,9 @@ from tqdm import tqdm
 from torchsummary import summary
 
 # hyperparameters
-batch_size = 32
+embedding_dim = 200
+feature_maps = 100
+batch_size = 64
 epochs = 10
 learning_rate = 0.0003
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -31,7 +33,7 @@ train_dl = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
 val_dl = DataLoader(val_ds, batch_size=len(val_ds), shuffle=False)
 
 # initialize Model
-model = TextCNN(embedding_matrix).to(device)
+model = TextCNN(embedding_matrix, embedding_dim, feature_maps, [2, 3, 4]).to(device)
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()

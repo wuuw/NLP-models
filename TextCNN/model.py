@@ -1,62 +1,45 @@
 import torch
 import torch.nn as nn
-
+from modules.conv1d import Conv1dList
+from modules.drop_linear import DropLinear
 """
 TextCNN 模型
 """
 
 
-def create_embedding_layer(embedding_matrix, trainable=True):
-    vocab_size, embed_dim = embedding_matrix.size()
-    embed_layer = nn.Embedding(vocab_size, embed_dim)
-    embed_layer.load_state_dict({'weight': embedding_matrix})
-    embed_layer.weight.requires_grad = trainable
-    return embed_layer, vocab_size, embed_dim
-
-
 class TextCNN(nn.Module):
-    def __init__(self, embedding_matrix):
-        super(TextCNN, self).__init__()
-        self.embed, self.vocab_size, self.embed_dim = create_embedding_layer(embedding_matrix, trainable=True)
 
-        self.conv1d_1 = nn.Conv1d(200, 100, 2)  # 输入的 channels 为 embedding_dim
-        self.conv1d_2 = nn.Conv1d(200, 100, 3)
-        self.conv1d_3 = nn.Conv1d(200, 100, 4)
+    def __init__(self, pre_trained, in_channels, out_channels, filter_sizes):
+        super(TextCNN, self).__init__()
+        self.embed = nn.Embedding.from_pretrained(pre_trained, freeze=False)
+
+        self.conv1d_list = Conv1dList(in_channels=in_channels,
+                                      out_channels=out_channels,
+                                      filter_sizes=filter_sizes)
 
         self.relu = nn.ReLU()
 
-        self.maxpool_1 = nn.AdaptiveMaxPool1d(1)
-        self.maxpool_2 = nn.AdaptiveMaxPool1d(1)
-        self.maxpool_3 = nn.AdaptiveMaxPool1d(1)
+        self.maxpool_list = nn.ModuleList([nn.AdaptiveAvgPool1d(1)]*len(filter_sizes))
 
-        self.dropout_1 = nn.Dropout(0.7)
-        self.fc_1 = nn.Linear(100 * 3, 32)
-        self.dropout_2 = nn.Dropout(0.7)
-        self.fc_2 = nn.Linear(32, 2)
+        self.drop_linear = DropLinear(out_channels * len(filter_sizes), 2, 0.7)
 
     def forward(self, x):
         out = self.embed(x)
         # (bs, sentence_len, embedding_dim) → (bs, embedding_dim, sentence_len)
         out = out.permute([0, 2, 1])
 
-        out_1 = self.conv1d_1(out)
-        out_2 = self.conv1d_2(out)
-        out_3 = self.conv1d_3(out)
+        outs = self.conv1d_list(out)
         # (bs, 64, sentence_len - filter_size + 1)
 
-        out_1 = self.relu(out_1)
-        out_2 = self.relu(out_2)
-        out_3 = self.relu(out_3)
+        outs = [self.relu(out) for out in outs]
 
         # 在第 3 维度上取最大值 (bs, 64, 1)
-        out_1 = self.maxpool_1(out_1).squeeze(2)
-        out_2 = self.maxpool_2(out_2).squeeze(2)
-        out_3 = self.maxpool_3(out_3).squeeze(2)
+        outs = [self.maxpool_list[i](outs[i])
+                for i in range(len(outs))]
 
-        cat = torch.cat((out_1, out_2, out_3), dim=1)
+        to_cat = tuple(outs[i] for i in range(len(outs)))
+        cat = torch.cat(to_cat, dim=1).squeeze(2)
 
-        out = self.dropout_1(cat)
-        out = self.fc_1(out)
-        out = self.dropout_2(out)
-        out = self.fc_2(out)
+        out = self.drop_linear(cat)
+
         return out
