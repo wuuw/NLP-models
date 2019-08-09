@@ -16,7 +16,7 @@
 
 ### Datasets
 
-- [商品评论中文数据集](./dataset/)，包含十种商品的 Positive/Negative 分类；针对情感分类，可分为 2 类；数据包含 0/1 两类各约 30000 条。
+- [商品评论中文数据集](./datasets/)，包含十种商品的 Positive/Negative 分类；针对情感分类，可分为 2 类；数据包含 0/1 两类各约 30000 条。
 
 ### Pre-trained Word Embedding
 
