@@ -1,5 +1,17 @@
 import torch.nn as nn
 
+"""
+带有 Dropout 功能的全连接层
+
+Parameters:
+@ in_features: 输入特征个数
+@ out_features: 输出特征个数
+@ dropout_rate: Dropout rate
+
+Return:
+全连接层的输出
+"""
+
 
 class DropLinear(nn.Module):
     def __init__(self, in_features, out_features, dropout_rate):
