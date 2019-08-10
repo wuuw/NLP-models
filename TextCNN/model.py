@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from modules.conv1d import Conv1dList
 from modules.drop_linear import DropLinear
 """
@@ -17,10 +18,6 @@ class TextCNN(nn.Module):
                                       out_channels=out_channels,
                                       filter_sizes=filter_sizes)
 
-        self.relu = nn.ReLU()
-
-        self.maxpool_list = nn.ModuleList([nn.AdaptiveAvgPool1d(1)]*len(filter_sizes))
-
         self.drop_linear = DropLinear(out_channels * len(filter_sizes), 2, 0.7)
 
     def forward(self, x):
@@ -30,15 +27,11 @@ class TextCNN(nn.Module):
 
         outs = self.conv1d_list(out)
         # (bs, 64, sentence_len - filter_size + 1)
-
-        outs = [self.relu(out) for out in outs]
-
+        outs = [F.relu(out) for out in outs]
         # 在第 3 维度上取最大值 (bs, 64, 1)
-        outs = [self.maxpool_list[i](outs[i])
-                for i in range(len(outs))]
+        outs = [F.adaptive_max_pool1d(out, 1) for out in outs]
 
-        to_cat = tuple(outs[i] for i in range(len(outs)))
-        cat = torch.cat(to_cat, dim=1).squeeze(2)
+        cat = torch.cat(tuple(outs), dim=1).squeeze(2)
 
         out = self.drop_linear(cat)
 

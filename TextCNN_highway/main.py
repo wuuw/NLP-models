@@ -1,4 +1,4 @@
-from TextCNN.model import TextCNN
+from TextCNN_highway.model import TextCNNwithHighway
 import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader
@@ -33,7 +33,7 @@ train_dl = DataLoader(train_ds, batch_size=batch_size, shuffle=True)
 val_dl = DataLoader(val_ds, batch_size=len(val_ds), shuffle=False)
 
 # initialize Model
-model = TextCNN(embedding_matrix, embedding_dim, feature_maps, [3, 4, 5]).to(device)
+model = TextCNNwithHighway(embedding_matrix, embedding_dim, feature_maps, [3, 4, 5]).to(device)
 
 # Loss and optimizer
 criterion = nn.CrossEntropyLoss()
