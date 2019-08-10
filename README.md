@@ -6,12 +6,15 @@
 
 ### Content
 
-- [TextCNN](./TextCNN/) 
+**建议配合文献一起食用 :D**
 
-  参考文献：[Convolutional Neural Networks for Sentence Classification](<https://www.aclweb.org/anthology/D14-1181>) (TextCNN origin paper)
-
-  参考文献：[A Sensitivity Analysis of (and Practitioners’ Guide to) Convolutional
+- [TextCNN](./TextCNN/) ，参考文献
+- [Convolutional Neural Networks for Sentence Classification](<https://www.aclweb.org/anthology/D14-1181>) (TextCNN origin paper)
+  - [A Sensitivity Analysis of (and Practitioners’ Guide to) Convolutional
   Neural Networks for Sentence Classification](<https://arxiv.org/pdf/1510.03820.pdf>) (对 TextCNN 模型的分析及调参建议)
+- [TextCNN + Highway](./TextCNN_highway)，参考文献：
+  - [Highway Networks](https://arxiv.org/pdf/1505.00387.pdf) (Highway Networks origin paper)
+  - [Training Very Deep Networks](https://papers.nips.cc/paper/5850-training-very-deep-networks.pdf)
 
 
 ### Datasets
